@@ -73,11 +73,12 @@ void Contour::writeImageToDisk(const char *file_path)
 void Contour::printContoursInfo()
 {
 	std::cout << this->contours.size() << " contours found." << std::endl;
-	std::cout << "Lengths : " << std::endl;
+	std::cout << "Lengths : ";
 	for(std::vector<std::vector<cv::Point> >::iterator it = this->contours.begin();
 			it != this->contours.end();
 			++it)
 		std::cout << it->size() << " ; ";
+	std::cout << std::endl;
 }
 
 int Contour::getThreshold()
