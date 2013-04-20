@@ -41,3 +41,4 @@ parts
 pip-log.txt
 sdist
 var
+.*.sw*
