@@ -21,6 +21,7 @@ bool Contour::readImage(const char *file_path)
 		std::cerr << "Image " << file_path << " not found!" << std::endl;
 		return false;
 	}
+	std::cout << this->original_image.cols << " " << this->original_image.rows << "\n";
 	return true;
 }
 
