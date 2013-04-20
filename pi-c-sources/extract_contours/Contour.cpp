@@ -63,7 +63,7 @@ void Contour::writeImageToDisk(const char *file_path)
 	cv::Scalar colors[3];
 	colors[0] = cv::Scalar(255, 0, 0);
 	colors[1] = cv::Scalar(0, 255, 0);
-	colors[2] = cv::Scalar(0, 0, 2550);
+	colors[2] = cv::Scalar(0, 0, 255);
 	for (size_t idx = 0; idx < this->contours.size(); idx++)
 		cv::drawContours(contour_image, this->contours, idx, colors[idx % 3]);
 	cv::imwrite(file_path, contour_image);
