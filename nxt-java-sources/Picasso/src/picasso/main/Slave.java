@@ -3,23 +3,25 @@ package picasso.main;
 
 import java.util.LinkedList;
 
-import lejos.nxt.Button;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.robotics.navigation.DifferentialPilot;
+import lejos.util.Delay;
 
 public class Slave implements Runnable 
 {
 	private DifferentialPilot pilot = null;
 	
-	public double travelSpeed = 10.0;
+	public double travelSpeed = 2.0;
 	
-	public double radius = 10.0;
+	public double radius = 1.0;
 	
 	public int step = 3;
 	
 	private double x = 0, y = 0;
 	
 	private double angle = 0;
+	
+	public double epsilon = 0.01;
 	
 	private LinkedList<Curve> queue = new LinkedList<Curve>();
 	
@@ -64,30 +66,38 @@ public class Slave implements Runnable
 		double Y = (double)c.GetYKth(0, 0);
 		// goto start (X, Y);
 		
-		for (int i=0; i<c.n; i++)
+		for (int i=0; i<c.n-1; i++)
 		{
-			
 			double x1 = c.GetXKth(i, 0);
 			double y1 = c.GetYKth(i, 0);
 			
-			double x2 = c.GetXKth(i, 3);
-			double y2 = c.GetYKth(i, 3);
+			double x2 = c.GetXKth(i, step);
+			double y2 = c.GetYKth(i, step);
 			
 			double dx = x2 - x1;
 			double dy = y2 - y1;
 			double theta = Math.atan2(dy, dx);
 			
 			double dTheta = theta - angle;
-			System.out.println(angle + "/" + theta + "/" + dTheta);
 			
-			if (dTheta == 0.0)
+			if (Math.abs(angle) >= Math.PI) System.out.println("x");
+			if (Math.abs(angle) >= Math.PI/2) System.out.println("y");
+			//System.out.println(angle + "/" + theta + "/" + dTheta);
+			
+			if (Math.abs(dTheta) <= epsilon)
 				pilot.travel(radius);
 			else 
 			{
+				double rad = 100.0;
+				
 				double deg = dTheta * 180.0 / Math.PI;
-				pilot.steer(radius, deg);
+				//pilot.steer(radius, deg);
+				pilot.steer(
+						(deg < 0) ? -rad : rad, 
+						deg);
 				angle += dTheta;
 			}
+			Delay.msDelay(1000);
 		}
 		
 		/*

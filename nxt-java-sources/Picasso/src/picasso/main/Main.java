@@ -50,7 +50,6 @@ public class Main
 				
 				//char C = dataIn.readChar();
 				//System.out.println(C);
-				
 				c.read(dataIn);
 			} catch (Exception e) { c = null; }
 			if (c != null) 
