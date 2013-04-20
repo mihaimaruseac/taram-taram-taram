@@ -72,47 +72,37 @@ void Contour::writeImageToDisk(const char *file_path)
 
 void Contour::printContoursInfo()
 {
-#if 0
-	std::cout << this->contours.size() << " contours found." << std::endl;
-	std::cout << "Lengths : ";
 	for(std::vector<std::vector<cv::Point> >::iterator it = this->contours.begin();
 			it != this->contours.end();
-			++it)
-		std::cout << it->size() << " ; ";
-	std::cout << std::endl;
-#endif
-#if 0
-	std::vector<cv::Point> smoothed_contour;
+			++it) {
+		std::vector<cv::Point>::iterator prev = it->begin();
+		std::vector<cv::Point>::iterator now = it->begin();
+		std::vector<cv::Point>::iterator next = it->begin();
+		std::vector<cv::Point>::iterator proper = it->begin();
+		int sz = 0;
 
-	/* Assuming all countours have at least length 3 */
-	std::vector<cv::Point>::iterator prev = contour.begin();
-	std::vector<cv::Point>::iterator now = contour.begin();
-	smoothed_contour.push_back(*now);
-	++now;
-	std::vector<cv::Point>::iterator next = contour.begin();
-	++next; ++next;
+		/* Assume all countours have at least length 3 */
+		++sz; ++now; ++next; ++next;
 
-	std::cout << "MM begin\n";
+		while (proper != it->end()) {
+			/* count points in current spline */
+			while (now != it->end()) {
+				++sz; ++now; ++next; ++prev;
+				cv::Point dnp = *now - *prev;
+				cv::Point dnn = *next - *now;
+				if (dnp.dot(dnn) < 0)
+					break;
+			}
 
-	for(;
-			next != contour.end();
-			++prev, ++now, ++next) {
-		smoothed_contour.push_back(*now);
+			std::cout << sz << "\n";
 
-		cv::Point dnp = *now - *prev;
-		cv::Point dnn = *next - *now;
-
-		if (dnp.dot(dnn) < 0)
-			std::cout << "MM 42 here " << *prev << " " << *now
-				<< " " << *next << " " << dnp << " " << dnn
-				<< "::" << dnp.dot(dnn) << "\n";
+			while (sz) {
+				--sz;
+				std::cout << proper->x << " " << proper->y << "\n";
+				++proper;
+			}
+		}
 	}
-	smoothed_contour.push_back(*now);
-
-	std::cout << "MM end\n";
-
-	return smoothed_contour;
-#endif
 }
 
 int Contour::getThreshold()
