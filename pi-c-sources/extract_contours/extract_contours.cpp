@@ -10,15 +10,12 @@ int main(int argc, const char * argv[])
 		return 1;
 	}
 
-	std::cout << "Extracting contours from " << argv[1] << std::endl;
-
 	Contour contour;
 
 	if (contour.readImage(argv[1]) == false)
 		return 1;
 
 	contour.extractContours();
-
 	contour.filterAndSmoothContours();
 
 	std::string contour_file = std::string(argv[1]);

@@ -72,6 +72,7 @@ void Contour::writeImageToDisk(const char *file_path)
 
 void Contour::printContoursInfo()
 {
+#if 0
 	std::cout << this->contours.size() << " contours found." << std::endl;
 	std::cout << "Lengths : ";
 	for(std::vector<std::vector<cv::Point> >::iterator it = this->contours.begin();
@@ -79,6 +80,39 @@ void Contour::printContoursInfo()
 			++it)
 		std::cout << it->size() << " ; ";
 	std::cout << std::endl;
+#endif
+#if 0
+	std::vector<cv::Point> smoothed_contour;
+
+	/* Assuming all countours have at least length 3 */
+	std::vector<cv::Point>::iterator prev = contour.begin();
+	std::vector<cv::Point>::iterator now = contour.begin();
+	smoothed_contour.push_back(*now);
+	++now;
+	std::vector<cv::Point>::iterator next = contour.begin();
+	++next; ++next;
+
+	std::cout << "MM begin\n";
+
+	for(;
+			next != contour.end();
+			++prev, ++now, ++next) {
+		smoothed_contour.push_back(*now);
+
+		cv::Point dnp = *now - *prev;
+		cv::Point dnn = *next - *now;
+
+		if (dnp.dot(dnn) < 0)
+			std::cout << "MM 42 here " << *prev << " " << *now
+				<< " " << *next << " " << dnp << " " << dnn
+				<< "::" << dnp.dot(dnn) << "\n";
+	}
+	smoothed_contour.push_back(*now);
+
+	std::cout << "MM end\n";
+
+	return smoothed_contour;
+#endif
 }
 
 int Contour::getThreshold()
