@@ -48,13 +48,7 @@ void Contour::filterAndSmoothContours()
 
 std::vector<cv::Point> Contour::smoothContour(std::vector<cv::Point> contour)
 {
-	// Momentan e functie dummy
-	std::vector<cv::Point> smoothed_contour;
-	for(std::vector<cv::Point>::iterator it = contour.begin();
-			it != contour.end();
-			++it)
-		smoothed_contour.push_back(*it);
-	return smoothed_contour;
+	return contour;
 }
 
 void Contour::writeImageToDisk(const char *file_path)
