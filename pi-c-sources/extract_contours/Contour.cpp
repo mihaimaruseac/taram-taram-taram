@@ -29,8 +29,8 @@ void Contour::extractContours()
 {
 	cv::cvtColor(this->original_image, this->original_image, CV_BGR2GRAY);
 	cv::threshold(this->original_image, this->original_image, 128, 255, CV_THRESH_BINARY);
-	cv::findContours(this->original_image.clone(),
-			all_contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+	cv::Mat clone = this->original_image.clone();
+	cv::findContours(clone, all_contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
 }
 
 void Contour::filterAndSmoothContours()
