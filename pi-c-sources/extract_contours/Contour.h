@@ -32,7 +32,7 @@ class Contour
 
 	private:
 		// minimum number of points in a contour
-		int threshold;
+		unsigned int threshold;
 		// length of smoothing window
 		int smooth_factor;
 		cv::Mat original_image;

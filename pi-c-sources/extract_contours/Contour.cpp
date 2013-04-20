@@ -17,8 +17,7 @@ Contour::Contour(int threshold, int smooth_factor)
 bool Contour::readImage(const char *file_path)
 {
 	this->original_image = cv::imread(file_path);
-	if (!original_image.data)
-	{
+	if (!original_image.data) {
 		std::cerr << "Image " << file_path << " not found!" << std::endl;
 		return false;
 	}
@@ -27,10 +26,8 @@ bool Contour::readImage(const char *file_path)
 
 void Contour::extractContours()
 {
-	// Pre-processing
 	cv::cvtColor(this->original_image, this->original_image, CV_BGR2GRAY);
 	cv::threshold(this->original_image, this->original_image, 128, 255, CV_THRESH_BINARY);
-	// Find contours
 	cv::findContours(this->original_image.clone(),
 			all_contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
 }
@@ -39,12 +36,13 @@ void Contour::filterAndSmoothContours()
 {
 	for(std::vector<std::vector<cv::Point> >::iterator it = all_contours.begin();
 			it != all_contours.end();
-			++it)
-	{
-		if (it->size() >= this->threshold)
-		{
-			this->contours.push_back(this->smoothContour(*it));
-		}
+			++it) {
+
+		/* filter too small contours */
+		if (it->size() < this->threshold)
+			continue;
+
+		this->contours.push_back(this->smoothContour(*it));
 	}
 }
 
@@ -55,9 +53,7 @@ std::vector<cv::Point> Contour::smoothContour(std::vector<cv::Point> contour)
 	for(std::vector<cv::Point>::iterator it = contour.begin();
 			it != contour.end();
 			++it)
-	{
 		smoothed_contour.push_back(*it);
-	}
 	return smoothed_contour;
 }
 
@@ -69,9 +65,7 @@ void Contour::writeImageToDisk(const char *file_path)
 	colors[1] = cv::Scalar(0, 255, 0);
 	colors[2] = cv::Scalar(0, 0, 2550);
 	for (size_t idx = 0; idx < this->contours.size(); idx++)
-	{
 		cv::drawContours(contour_image, this->contours, idx, colors[idx % 3]);
-	}
 	cv::imwrite(file_path, contour_image);
 }
 
@@ -82,9 +76,7 @@ void Contour::printContoursInfo()
 	for(std::vector<std::vector<cv::Point> >::iterator it = this->contours.begin();
 			it != this->contours.end();
 			++it)
-	{
 		std::cout << it->size() << " ; ";
-	}
 }
 
 int Contour::getThreshold()

@@ -5,8 +5,7 @@
 
 int main(int argc, const char * argv[])
 {
-	if (argc < 2)
-	{
+	if (argc < 2) {
 		std::cerr << "Usage: " << argv[0] << " <jpg file>" << std::endl;
 		return 1;
 	}
@@ -16,9 +15,7 @@ int main(int argc, const char * argv[])
 	Contour contour;
 
 	if (contour.readImage(argv[1]) == false)
-	{
 		return 1;
-	}
 
 	contour.extractContours();
 
