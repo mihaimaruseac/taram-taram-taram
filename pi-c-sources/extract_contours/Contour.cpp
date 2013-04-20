@@ -60,12 +60,19 @@ std::vector<cv::Point> Contour::smoothContour(std::vector<cv::Point> contour)
 void Contour::writeImageToDisk(const char *file_path)
 {
 	cv::Mat contour_image(this->original_image.size(), CV_8UC3, cv::Scalar(0,0,0));
-	cv::Scalar colors[3];
+
+	const int num_colours = 6;
+	cv::Scalar colors[num_colours];
+
 	colors[0] = cv::Scalar(255, 0, 0);
 	colors[1] = cv::Scalar(0, 255, 0);
 	colors[2] = cv::Scalar(0, 0, 255);
+	colors[3] = cv::Scalar(0, 255, 255);
+	colors[4] = cv::Scalar(255, 0, 255);
+	colors[5] = cv::Scalar(255, 255, 0);
+
 	for (size_t idx = 0; idx < this->contours.size(); idx++)
-		cv::drawContours(contour_image, this->contours, idx, colors[idx % 3]);
+		cv::drawContours(contour_image, this->contours, idx, colors[idx % num_colours]);
 	cv::imwrite(file_path, contour_image);
 }
 
