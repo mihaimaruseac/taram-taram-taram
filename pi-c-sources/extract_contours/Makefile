@@ -1,7 +1,7 @@
 .PHONY: all build clean
 
 CC := g++
-CPPFLAGS := -Wall --std=c++0x $(shell pkg-config --cflags opencv)
+CPPFLAGS := -Wall -Wextra -g -O0 --std=c++0x $(shell pkg-config --cflags opencv)
 LDFLAGS := $(shell pkg-config --libs opencv)
 
 TARGET = ./extract_contours
