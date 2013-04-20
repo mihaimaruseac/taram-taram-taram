@@ -41,4 +41,7 @@ parts
 pip-log.txt
 sdist
 var
+.classpath
+*.nxd
+*.nxj
 .*.sw*
