@@ -2,7 +2,6 @@
 package picasso.main;
 
 import java.io.DataInputStream;
-import java.io.IOException;
 
 import lejos.nxt.Button;
 import lejos.nxt.ButtonListener;
@@ -10,9 +9,12 @@ import lejos.nxt.Motor;
 import lejos.nxt.comm.Bluetooth;
 import lejos.nxt.comm.NXTConnection;
 import lejos.robotics.navigation.DifferentialPilot;
+import lejos.util.Delay;
 
 public class Main2 
 {
+	public static final boolean kDebug = true;
+	
 	public static NXTConnection connection = null;
 	
 	public static DataInputStream dataIn = null;
@@ -57,10 +59,8 @@ public class Main2
 	
 	private static void Travel(double distance)
 	{
-		System.out.println(distance);
-		System.out.println(x + ", " + y);
-		pilot.travel(distance);
-		//pilot.travel(distance * 10.0 / (double)Math.max(w, h));
+		pilot.travel(distance * 0.05);
+		//pilot.travel(distance * 1.0 / (double)Math.max(w, h));
 		double dx = distance * Math.sin(angle);
 		double dy = distance * Math.cos(angle);
 		x += dx;
@@ -101,15 +101,20 @@ public class Main2
 		
 		Connect();
 		
-		try {
+		boolean flag = false;
 			
-			while (true)
-			{
+		while (true)
+		{
+			try {
 				
 				int nx = Main2.dataIn.readInt();
 				if (nx < 0)
 				{
-					// todo:
+					if (!flag)
+					{
+						Motor.C.rotate(60, false);
+						flag = true;
+					}
 					
 				} else {
 					int ny = Main2.dataIn.readInt();
@@ -130,12 +135,20 @@ public class Main2
 						Travel(distance); 
 						
 					x = xx; y = yy;
+					
+					if (flag)
+					{
+						Motor.C.rotate(-60, false);
+						flag = false;
+					}
+					
+if (kDebug) Delay.msDelay(200);
 				}
 				
 				Thread.sleep(100);
 				
-			} 
-		} catch (Exception e) { }
+			} catch (Exception e) { } 
+		}
 	}
 	
 }
