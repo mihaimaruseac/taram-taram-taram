@@ -2,7 +2,6 @@
 package picasso.main;
 
 import java.io.DataInputStream;
-import java.io.IOException;
 
 import lejos.nxt.Button;
 import lejos.nxt.ButtonListener;
@@ -17,6 +16,9 @@ public class Main
 	public static NXTConnection connection = null;
 	
 	public static DataInputStream dataIn = null;
+	
+	public static Slave2 slave = new Slave2(1.0f, 3.0f, Motor.A, Motor.B);
+	//public static Slave slave = new Slave(1.0f, 3.0f, Motor.A, Motor.B);
 	
 	public static int w = 1, h = 1;
 	
@@ -34,6 +36,10 @@ public class Main
 		try {
 			Main.w = Main.dataIn.readInt();
 			Main.h = Main.dataIn.readInt();
+			
+			Main.slave.travelSpeed = 10.0 / 
+					(double)Math.max(Main.w, Main.h);
+			
 		} catch (Exception e) { }
 	}
 	
@@ -60,10 +66,10 @@ public class Main
 		
 		Connect();
 		
-		Slave slave = new Slave(1.0f, 3.0f, Motor.A, Motor.B);
-		Thread slaveThread = new Thread(slave);
+		Thread slaveThread = new Thread(Main.slave);
 		slaveThread.start();
 		
+		/*
 		while (true)
 		{
 			Curve c = new Curve();
@@ -76,6 +82,25 @@ public class Main
 			if (c != null) 
 			{
 				slave.add(c);
+			}
+		}
+		*/
+		
+		while (true)
+		{
+			synchronized (slave.mutex) {
+				try{
+					int x = Main.dataIn.readInt();
+					if (x < 0)
+					{
+						// todo:
+					}
+					else 
+					{
+						int y = Main.dataIn.readInt();
+						slave.set((double)x, (double)y);
+					}
+				} catch (Exception e) { }
 			}
 		}
 	}	

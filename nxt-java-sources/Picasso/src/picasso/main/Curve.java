@@ -30,7 +30,7 @@ public class Curve
 	public void read(DataInputStream in) throws IOException
 	{
 		this.n = in.readInt();
-		
+
 		this.x = new int [n];
 		this.y = new int [n];
 		for (int i=0; i<n; i++)
