@@ -9,11 +9,15 @@ import lejos.util.Delay;
 
 public class Slave implements Runnable 
 {
+	public static final boolean kDebug = Main.kDebug;
+	
 	private DifferentialPilot pilot = null;
 	
 	public double travelSpeed = 2.0;
 	
 	public double radius = 1.0;
+	
+	public double rad = 100.0;
 	
 	public int step = 3;
 	
@@ -28,7 +32,8 @@ public class Slave implements Runnable
 	public Slave(double wheelDiameter, double trackWidth, 
 			NXTRegulatedMotor leftMotor, NXTRegulatedMotor rightMotor) 
 	{
-		pilot = new DifferentialPilot(wheelDiameter, trackWidth, leftMotor, rightMotor);
+		pilot = new DifferentialPilot(wheelDiameter, 
+									trackWidth, leftMotor, rightMotor);
 		pilot.setTravelSpeed(travelSpeed);
 	}
 
@@ -37,21 +42,45 @@ public class Slave implements Runnable
 		while (true)
 		{
 			try {
-				//wait(); // mutex
-				//mutex.wait(); // mutex
 				Thread.sleep(100);
 			} catch (Exception e) { }
 			
 			while (queue.size() > 0)
-			{
 				process(queue.remove(0));
-			}
 		}
 	}
 	
 	public void add(Curve c)
 	{
 		queue.add(c);
+	}
+	
+	private void Steer(double dTheta)
+	{
+		double deg = dTheta * 180.0 / Math.PI;
+		pilot.steer((deg < 0) ? -rad : rad, 
+				deg);
+		angle += dTheta;
+	}
+	
+	private void Travel(double distance)
+	{
+		pilot.travel(distance);
+		double dx = distance * Math.sin(angle);
+		double dy = distance * Math.cos(angle);
+		x += dx;
+		y += dy;
+	}
+	
+	public double DTheta(double x1, double y1, double x2, double y2)
+	{
+		double dx = x2 - x1;
+		double dy = y2 - y1;
+		
+		double theta = Math.atan2(dy, dx);
+		double dTheta = theta - angle;
+		
+		return dTheta;
 	}
 	
 	public void process(Curve c)
@@ -61,75 +90,33 @@ public class Slave implements Runnable
 			System.err.println("Error: no pilot");
 			return;
 		}
-
-		double X = (double)c.GetXKth(0, 0);
-		double Y = (double)c.GetYKth(0, 0);
-		// goto start (X, Y);
+		
+		if (c.n <= 2) 
+		{
+			System.err.println("Error: not enough points");
+			return;
+		}
+		
+		double dTheta = DTheta(x, y, 
+				(double)c.GetXKth(0, 0), (double)c.GetYKth(0, 0));
+		
+		double dx = (double)c.GetXKth(0, 0) - x;
+		double dy = (double)c.GetYKth(0, 0) - y;
+		double distance = Math.sqrt(dx * dx + dy * dy);
+		
+		Steer(dTheta);
+		Travel(distance);
 		
 		for (int i=0; i<c.n-1; i++)
 		{
-			double x1 = c.GetXKth(i, 0);
-			double y1 = c.GetYKth(i, 0);
+			dTheta = DTheta(c.GetXKth(i, 0), c.GetYKth(i, 0),
+					c.GetXKth(i, step), c.GetYKth(i, step));
 			
-			double x2 = c.GetXKth(i, step);
-			double y2 = c.GetYKth(i, step);
+			if (Math.abs(dTheta) <= epsilon) Travel(radius);
+			else Steer(dTheta);
 			
-			double dx = x2 - x1;
-			double dy = y2 - y1;
-			double theta = Math.atan2(dy, dx);
-			
-			double dTheta = theta - angle;
-			
-			if (Math.abs(angle) >= Math.PI) System.out.println("x");
-			if (Math.abs(angle) >= Math.PI/2) System.out.println("y");
-			//System.out.println(angle + "/" + theta + "/" + dTheta);
-			
-			if (Math.abs(dTheta) <= epsilon)
-				pilot.travel(radius);
-			else 
-			{
-				double rad = 100.0;
-				
-				double deg = dTheta * 180.0 / Math.PI;
-				//pilot.steer(radius, deg);
-				pilot.steer(
-						(deg < 0) ? -rad : rad, 
-						deg);
-				angle += dTheta;
-			}
-			Delay.msDelay(1000);
+if (kDebug) Delay.msDelay(1000);
 		}
-		
-		/*
-		pilot.travel(5);
-		for (int i=0; i<2; i++)
-		{
-			pilot.steer(-50, -10, false);				
-			pilot.steer(50, 10, false);
-			pilot.steer(-50, 10, false);				
-			pilot.steer(50, -10, false);
-		}
-		*/
-
-		//pilot.steer(1.0, 10, false);
-		
-		//pilot.forward();
-		//pilot.travel(10.0);
-		
-		/*
-		pilot.travel(20.0, true);
-		
-		for (int i=0; i<6; i++)
-		{
-			pilot.rotate(-10);
-			Delay.msDelay(100);
-		}
-		*/
-		
-		//pilot.rotate(-60);
-		//pilot.travel(5.0, false);
-		//Delay.msDelay(1000);
-		//pilot.stop();
 	}
 
 }

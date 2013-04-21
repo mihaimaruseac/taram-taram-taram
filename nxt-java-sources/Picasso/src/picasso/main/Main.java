@@ -9,12 +9,33 @@ import lejos.nxt.ButtonListener;
 import lejos.nxt.Motor;
 import lejos.nxt.comm.Bluetooth;
 import lejos.nxt.comm.NXTConnection;
-import lejos.util.Delay;
-import lejos.nxt.Button;
 
 public class Main 
 {
+	public static final boolean kDebug = true;
+	
+	public static NXTConnection connection = null;
+	
 	public static DataInputStream dataIn = null;
+	
+	public static int w = 1, h = 1;
+	
+	private static void Connect()
+	{
+		try{
+			Main.connection.close();
+		} catch (Exception e) { }
+		System.out.print("connect...");
+		Main.connection = Bluetooth.waitForConnection();
+		Main.connection.setIOMode(NXTConnection.RAW);
+		Main.dataIn = Main.connection.openDataInputStream();
+		System.out.println("done.");
+		
+		try {
+			Main.w = Main.dataIn.readInt();
+			Main.h = Main.dataIn.readInt();
+		} catch (Exception e) { }
+	}
 	
 	public static void main(String [] args)
 	{
@@ -23,7 +44,13 @@ public class Main
 		byte pin [] = {0, 0, 0, 0};
 		Bluetooth.setPin(pin);
 		
-		Button.ENTER.addButtonListener(new ButtonListener() {
+		Button.RIGHT.addButtonListener(new ButtonListener() {
+			public void buttonReleased(Button b) { }
+			
+			public void buttonPressed(Button b) { Connect(); }
+		});
+		
+		Button.LEFT.addButtonListener(new ButtonListener() {
 			public void buttonReleased(Button b) { }
 			
 			public void buttonPressed(Button b) {
@@ -31,13 +58,9 @@ public class Main
 			}
 		});
 		
-		NXTConnection connection = Bluetooth.waitForConnection();
-		//if (connection != null)
-			Main.dataIn = connection.openDataInputStream();
-			
-		System.out.println("Online :)\n");
+		Connect();
 		
-		Slave slave = new Slave(2.25f, 5.5f, Motor.A, Motor.B);
+		Slave slave = new Slave(1.0f, 3.0f, Motor.A, Motor.B);
 		Thread slaveThread = new Thread(slave);
 		slaveThread.start();
 		
@@ -46,17 +69,13 @@ public class Main
 			Curve c = new Curve();
 			try {
 				//int I = dataIn.readInt(); 
-				//System.out.println(Integer.toHexString(I & 0xFF));
+				//System.out.println(I + " ");
 				
-				//char C = dataIn.readChar();
-				//System.out.println(C);
 				c.read(dataIn);
 			} catch (Exception e) { c = null; }
 			if (c != null) 
 			{
 				slave.add(c);
-				//slave.notify(); // mutex
-				//slave.mutex.notify(); // mutex
 			}
 		}
 	}	
