@@ -95,7 +95,7 @@ void Contour::printContoursInfo()
 					break;
 			}
 
-			//std::cout << sz << "\n";
+			std::cout << -sz << "\n";
 
 			while (sz) {
 				--sz;
